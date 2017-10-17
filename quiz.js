@@ -1,12 +1,13 @@
 function Quiz() {
-  this.questionNumber = 1;
+  this.questionNumber = 0;
   this.questionDiv = $('#question');
   this.timecount = 5;
   this.timerpara = $('#timer p');
   this.score = 0;
   this.evaluateAnswer = $('#evaluate');
-  console.log(this.evaluateAnswer);
   this.questionNoHeading = $('h3');
+  this.isCorrect = false;
+  this.storeQuestion = {};
 }
 
 Quiz.prototype.timer = function() {
@@ -14,41 +15,60 @@ Quiz.prototype.timer = function() {
   var _this = this;
   this.delay = 1000;
   this.timecount = 5;
-  var x = setInterval(function() {
+  this.thirdInterval = setInterval(function() {
     _this.timerpara.text('00:0' + _this.timecount--);
     if(_this.timecount < 0) {
-      _this.timerpara.text('time up');
-      clearInterval(x);
+      if(_this.timecount == -3) {
+        if(_this.isCorrect) {
+          _this.timerpara.text('good');
+        } else {
+          _this.timerpara.text('bad');
+        }
+      } else {
+         _this.evaluateAnswer.text('time up');
+         _this.timerpara.text('be quick');
+         _this.savequestion();
+      }
+      clearInterval(_this.thirdInterval);
     }
   },1000);
 };
 
+Quiz.prototype.savequestion = function() {
+  this.storeQuestion[this.question] = this.answer;
+}
+
 Quiz.prototype.checkanswer = function(answer) {
   var _this = this;
   return function() {
+    _this.timecount = -2;
     if(_this.inputElement.val() == answer) {
       _this.evaluateAnswer.text('correct answer');
       _this.score++;
+      _this.isCorrect = true;
     } else {
       _this.evaluateAnswer.text('incorrect answer');
+      _this.isCorrect = false;
+      _this.savequestion();
     }
   };
 };
 
 
 Quiz.prototype.createQuestion = function() {
-  var number1 = Math.ceil(Math.random() * 20),
-      number2 = Math.ceil(Math.random() * 20),
-      operators = ['+', '-', '*', '/'],
-      randomOperatorIndex = Math.floor(Math.random() * 4),
-      answer = eval(number1 + operators[randomOperatorIndex] + number2);
+  this.number1 = Math.ceil(Math.random() * 20);
+  this.number2 = Math.ceil(Math.random() * 20);
+  this.operators = ['+', '-', '*', '/'];
+  this.randomOperatorIndex = Math.floor(Math.random() * 4);
+  this.answer = eval(this.number1 + this.operators[this.randomOperatorIndex] + this.number2);
   this.inputElement = $('<input>', { type: "text" });
   this.submitElement = $('<input>', { type: "submit", value: "submit" });
-  this.questionNoHeading.text("Question Number: " + this.questionNumber++);
-  this.questionDiv.text(number1 + ' ' + operators[randomOperatorIndex] + ' ' + number2 + ' = ');
+  this.questionNoHeading.text("Question Number: " + ++this.questionNumber);
+  this.question = this.number1 + ' ' + this.operators[this.randomOperatorIndex] + ' ' + this.number2 + ' = ';
+  this.questionDiv.text(this.question);
   this.questionDiv.append(this.inputElement, '<br>', this.submitElement);
   this.evaluateAnswer.text('');
-  this.submitElement.click(this.checkanswer(answer));
+  this.submitElement.click(this.checkanswer(this.answer));
 };
 
 Quiz.prototype.showScore = function() {
@@ -56,27 +76,33 @@ Quiz.prototype.showScore = function() {
   this.timerpara.text('');
   this.evaluateAnswer.text('');
   this.questionDiv.text('');
+  this.timerpara.text('');
+  for(var key in this.storeQuestion) {
+    var paraElement = $('<p>').text(key + this.storeQuestion[key]);
+    paraElement.appendTo(this.evaluateAnswer);
+  }
 }
 
 Quiz.prototype.startQuiz = function() {
   var _this = this;
   this.questionDelay = 7000;
-
-  var x = setInterval(function() {
+  this.secondInterval = setInterval(function() {
     _this.timer();
-    if(_this.questionNumber > 20) {
+    if(_this.questionNumber > 2) {
+      clearInterval(_this.secondInterval);
+      clearInterval(_this.thirdInterval);
       _this.showScore();
-      clearInterval(x);
     }
-  },7000);
+  }, _this.questionDelay);
 };
+
 Quiz.prototype.startQuizInterval = function() {
   var startTime = 5,
       _this = this;
-  var x = setInterval(function() {
+  this.firstInterval = setInterval(function() {
     _this.questionDiv.text('Quiz about to start in ' + startTime-- + ' seconds');
     if (startTime < 0) {
-      clearInterval(x);
+      clearInterval(_this.firstInterval);
     }
   }, 1000);
 };

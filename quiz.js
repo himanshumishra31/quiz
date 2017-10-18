@@ -72,7 +72,7 @@ Quiz.prototype.createQuestion = function() {
   this.number2 = Math.ceil(Math.random() * 20);
   this.operators = ['+', '-', '*', '/'];
   this.randomOperatorIndex = Math.floor(Math.random() * 4);
-  this.answer = eval(this.number1 + this.operators[this.randomOperatorIndex] + this.number2);
+  this.answer = Math.round(eval(this.number1 + this.operators[this.randomOperatorIndex] + this.number2) * 100) / 100;
   this.inputElement = $('<input>', { type: "text" });
   this.submitElement = $('<input>', { type: "submit", value: "submit" });
   this.questionNoHeading.text("Question Number: " + ++this.questionNumber);

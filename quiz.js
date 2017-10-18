@@ -36,14 +36,20 @@ Quiz.prototype.timer = function() {
 };
 
 Quiz.prototype.savequestion = function() {
-  this.storeQuestion[this.question] = this.answer;
+  this.storeQuestion[this.questionNumber] = {
+    number1: this.number1,
+    operator: this.operators[this.randomOperatorIndex],
+    number2: this.number2,
+    answerGiven: this.inputElement.val(),
+    correctAnswer: this.answer
+  };
 }
 
-Quiz.prototype.checkanswer = function(answer) {
+Quiz.prototype.checkanswer = function() {
   var _this = this;
   return function() {
     _this.timecount = -2;
-    if(_this.inputElement.val() == answer) {
+    if(_this.inputElement.val() == _this.answer) {
       _this.evaluateAnswer.text('correct answer');
       _this.score++;
       _this.isCorrect = true;
@@ -70,7 +76,7 @@ Quiz.prototype.createQuestion = function() {
   this.questionDiv.append(this.inputElement, '<br>', this.submitElement);
   this.evaluateAnswer.text('');
   this.scoreBoard.text('Score: ' + this.score);
-  this.submitElement.click(this.checkanswer(this.answer));
+  this.submitElement.click(this.checkanswer());
 };
 
 Quiz.prototype.showScore = function() {
@@ -80,9 +86,26 @@ Quiz.prototype.showScore = function() {
   this.questionDiv.text('');
   this.timerpara.text('');
   this.scoreBoard.text('');
+  var table = $('<table>', { id: "solutionTable"} ),
+      tableRow = $('<tr>'),
+      questionColumnHeading = $('<th>').text('Question no'),
+      number1ColumnHeading = $('<th>').text('First Number'),
+      operatorColumnHeading = $('<th>').text('Operator'),
+      number2ColumnHeading = $('<th>').text('Second Number'),
+      givenAnswerHeading = $('<th>').text('Given Answer'),
+      correctAnswerHeading = $('<th>').text('Correct Answer');
+  table.appendTo(this.evaluateAnswer);
+  tableRow.appendTo(table);
+  tableRow.append(questionColumnHeading, number1ColumnHeading, operatorColumnHeading, number2ColumnHeading, givenAnswerHeading, correctAnswerHeading);
   for(var key in this.storeQuestion) {
-    var paraElement = $('<p>').text(key + this.storeQuestion[key]);
-    paraElement.appendTo(this.evaluateAnswer);
+    var questionDataRow = $('<tr>'),
+        questionNo = $('<td>').text(key);
+    questionDataRow.appendTo(table);
+    questionNo.appendTo(questionDataRow);
+    for(var key2 in this.storeQuestion[key]) {
+      var questionData = $('<td>').text(this.storeQuestion[key][key2]);
+      questionData.appendTo(questionDataRow);
+    }
   }
 };
 

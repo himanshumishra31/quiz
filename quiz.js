@@ -20,19 +20,11 @@ Quiz.prototype.timer = function() {
   this.thirdInterval = setInterval(function() {
     _this.timerpara.text('00:0' + _this.timecount--);
     if(_this.timecount < 0) {
-      if(_this.timecount == -3) {
-        if(_this.isCorrect) {
-          _this.timerpara.text('good');
-        } else {
-          _this.timerpara.text('bad');
-        }
-      } else {
-          _this.evaluateAnswer.text('time up');
-          _this.timerpara.text('be quick');
-          _this.submitElement.trigger('click');
-          if(!_this.inputElement.val()) {
-            _this.savequestion();
-          }
+      _this.evaluateAnswer.text('time up');
+      _this.timerpara.text('NextQuestion');
+      _this.submitElement.trigger('click');
+      if(!_this.inputElement.val()) {
+        _this.savequestion();
       }
       clearInterval(_this.thirdInterval);
     }
@@ -52,7 +44,6 @@ Quiz.prototype.savequestion = function() {
 Quiz.prototype.checkanswer = function() {
   var _this = this;
   return function() {
-    _this.timecount = -2;
     _this.inputElement.prop("disabled", true);
     if(_this.inputElement.val() == _this.answer) {
       _this.evaluateAnswer.text('correct answer');
@@ -124,7 +115,7 @@ Quiz.prototype.startQuiz = function() {
   this.questionDelay = 7000;
   this.secondInterval = setInterval(function() {
     _this.timer();
-    if(_this.questionNumber > 1) {
+    if(_this.questionNumber > 3) {
       clearInterval(_this.secondInterval);
       clearInterval(_this.thirdInterval);
       _this.showScore();

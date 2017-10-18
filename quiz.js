@@ -9,6 +9,7 @@ function Quiz(data) {
   this.isCorrect = false;
   this.storeQuestion = {};
   this.scoreBoard = data.scoreBoard;
+  this.solutionsHeading = data.solutionsHeading;
 }
 
 Quiz.prototype.timer = function() {
@@ -26,9 +27,12 @@ Quiz.prototype.timer = function() {
           _this.timerpara.text('bad');
         }
       } else {
-         _this.evaluateAnswer.text('time up');
-         _this.timerpara.text('be quick');
-         _this.savequestion();
+          _this.evaluateAnswer.text('time up');
+          _this.timerpara.text('be quick');
+          _this.submitElement.trigger('click');
+          if(!_this.inputElement.val()) {
+            _this.savequestion();
+          }
       }
       clearInterval(_this.thirdInterval);
     }
@@ -49,6 +53,7 @@ Quiz.prototype.checkanswer = function() {
   var _this = this;
   return function() {
     _this.timecount = -2;
+    _this.inputElement.prop("disabled", true);
     if(_this.inputElement.val() == _this.answer) {
       _this.evaluateAnswer.text('correct answer');
       _this.score++;
@@ -86,26 +91,31 @@ Quiz.prototype.showScore = function() {
   this.questionDiv.text('');
   this.timerpara.text('');
   this.scoreBoard.text('');
-  var table = $('<table>', { id: "solutionTable"} ),
-      tableRow = $('<tr>'),
-      questionColumnHeading = $('<th>').text('Question no'),
-      number1ColumnHeading = $('<th>').text('First Number'),
-      operatorColumnHeading = $('<th>').text('Operator'),
-      number2ColumnHeading = $('<th>').text('Second Number'),
-      givenAnswerHeading = $('<th>').text('Given Answer'),
-      correctAnswerHeading = $('<th>').text('Correct Answer');
-  table.appendTo(this.evaluateAnswer);
-  tableRow.appendTo(table);
-  tableRow.append(questionColumnHeading, number1ColumnHeading, operatorColumnHeading, number2ColumnHeading, givenAnswerHeading, correctAnswerHeading);
-  for(var key in this.storeQuestion) {
-    var questionDataRow = $('<tr>'),
-        questionNo = $('<td>').text(key);
-    questionDataRow.appendTo(table);
-    questionNo.appendTo(questionDataRow);
-    for(var key2 in this.storeQuestion[key]) {
-      var questionData = $('<td>').text(this.storeQuestion[key][key2]);
-      questionData.appendTo(questionDataRow);
+  if(Object.keys(this.storeQuestion).length > 0) {
+    this.solutionsHeading.text('Unanswered Questions or wrong answered');
+    var table = $('<table>', { id: "solutionTable"} ),
+        tableRow = $('<tr>'),
+        questionColumnHeading = $('<th>').text('Question no'),
+        number1ColumnHeading = $('<th>').text('First Number'),
+        operatorColumnHeading = $('<th>').text('Operator'),
+        number2ColumnHeading = $('<th>').text('Second Number'),
+        givenAnswerHeading = $('<th>').text('Given Answer'),
+        correctAnswerHeading = $('<th>').text('Correct Answer');
+    table.appendTo(this.evaluateAnswer);
+    tableRow.appendTo(table);
+    tableRow.append(questionColumnHeading, number1ColumnHeading, operatorColumnHeading, number2ColumnHeading, givenAnswerHeading, correctAnswerHeading);
+    for(var key in this.storeQuestion) {
+      var questionDataRow = $('<tr>'),
+          questionNo = $('<td>').text(key);
+      questionDataRow.appendTo(table);
+      questionNo.appendTo(questionDataRow);
+      for(var key2 in this.storeQuestion[key]) {
+        var questionData = $('<td>').text(this.storeQuestion[key][key2]);
+        questionData.appendTo(questionDataRow);
+      }
     }
+  } else {
+    this.solutionsHeading.text('Great. You answered all questions correctly');
   }
 };
 
@@ -114,7 +124,7 @@ Quiz.prototype.startQuiz = function() {
   this.questionDelay = 7000;
   this.secondInterval = setInterval(function() {
     _this.timer();
-    if(_this.questionNumber > 3) {
+    if(_this.questionNumber > 1) {
       clearInterval(_this.secondInterval);
       clearInterval(_this.thirdInterval);
       _this.showScore();
@@ -127,6 +137,7 @@ Quiz.prototype.startQuizInterval = function() {
       _this = this;
   this.firstInterval = setInterval(function() {
     _this.questionDiv.text('Quiz about to start in ' + startTime-- + ' seconds');
+    _this.timerpara.text('get ready');
     if (startTime < 0) {
       clearInterval(_this.firstInterval);
     }
@@ -144,7 +155,8 @@ $(document).ready(function() {
     timerpara: $('#timer p'),
     evaluateAnswer: $('#evaluate'),
     questionNoHeading: $('#questionNumber'),
-    scoreBoard: $('#score')
+    scoreBoard: $('#score'),
+    solutionsHeading: $('#solutions')
   },
   quizObject = new Quiz(data);
   quizObject.init();

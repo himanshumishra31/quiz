@@ -1,7 +1,6 @@
 function Quiz(data) {
   this.questionNumber = 0;
   this.questionDiv = data.questionDiv;
-  this.timecount = 5;
   this.timerpara = data.timerpara;
   this.score = 0;
   this.evaluateAnswer = data.evaluateAnswer;
@@ -10,25 +9,34 @@ function Quiz(data) {
   this.storeQuestion = {};
   this.scoreBoard = data.scoreBoard;
   this.solutionsHeading = data.solutionsHeading;
+  this.questionDelayValue = data.questionDelayValue;
+  this.numberOfQuestions = data.numberOfQuestions;
+  this.timerDelayValue = data.timerDelayValue;
+  this.timerCountValue = data.timerCountValue;
+  this.operators = data.opertorArray;
+  this.operandUpperLimit = data.operandUpperLimit;
+  this.operandLowerLimit = data.operandLowerLimit;
+
 }
 
 Quiz.prototype.timer = function() {
   this.createQuestion();
   var _this = this;
-  this.delay = 1000;
-  this.timecount = 5;
+  this.delay = this.timerDelayValue;
+  this.timecount = this.timerCountValue;
   this.thirdInterval = setInterval(function() {
     _this.timerpara.text('00:0' + _this.timecount--);
     if(_this.timecount < 0) {
       _this.evaluateAnswer.text('time up');
       _this.timerpara.text('NextQuestion');
-      _this.submitElement.trigger('click');
-      if(!_this.inputElement.val()) {
+      if(!_this.click) {
+        _this.submitElement.trigger('click');
+      } else if(!_this.inputElement.val()) {
         _this.savequestion();
       }
       clearInterval(_this.thirdInterval);
     }
-  },1000);
+  },this.delay);
 };
 
 Quiz.prototype.savequestion = function() {
@@ -44,6 +52,7 @@ Quiz.prototype.savequestion = function() {
 Quiz.prototype.checkanswer = function() {
   var _this = this;
   return function() {
+    _this.click = true;
     _this.inputElement.prop("disabled", true);
     if(_this.inputElement.val() == _this.answer) {
       _this.evaluateAnswer.text('correct answer');
@@ -57,12 +66,10 @@ Quiz.prototype.checkanswer = function() {
   };
 };
 
-
 Quiz.prototype.createQuestion = function() {
-  this.number1 = Math.ceil(Math.random() * 20);
-  this.number2 = Math.ceil(Math.random() * 20);
-  this.operators = ['+', '-', '*', '/'];
-  this.randomOperatorIndex = Math.floor(Math.random() * 4);
+  this.number1 = Math.ceil(Math.random() * this.operandUpperLimit) + this.operandLowerLimit;
+  this.number2 = Math.ceil(Math.random() * this.operandUpperLimit) + this.operandLowerLimit;
+  this.randomOperatorIndex = Math.floor(Math.random() * this.operators.length);
   this.answer = Math.round(eval(this.number1 + this.operators[this.randomOperatorIndex] + this.number2) * 100) / 100;
   this.inputElement = $('<input>', { type: "text" });
   this.submitElement = $('<input>', { type: "submit", value: "submit" });
@@ -73,6 +80,7 @@ Quiz.prototype.createQuestion = function() {
   this.evaluateAnswer.text('');
   this.scoreBoard.text('Score: ' + this.score);
   this.submitElement.click(this.checkanswer());
+  this.click = false;
 };
 
 Quiz.prototype.showScore = function() {
@@ -112,10 +120,10 @@ Quiz.prototype.showScore = function() {
 
 Quiz.prototype.startQuiz = function() {
   var _this = this;
-  this.questionDelay = 7000;
+  this.questionDelay = this.questionDelayValue;
   this.secondInterval = setInterval(function() {
     _this.timer();
-    if(_this.questionNumber > 3) {
+    if(_this.questionNumber > _this.numberOfQuestions) {
       clearInterval(_this.secondInterval);
       clearInterval(_this.thirdInterval);
       _this.showScore();
@@ -132,7 +140,7 @@ Quiz.prototype.startQuizInterval = function() {
     if (startTime < 0) {
       clearInterval(_this.firstInterval);
     }
-  }, 1000);
+  }, this.timerDelayValue);
 };
 
 Quiz.prototype.init = function() {
@@ -147,7 +155,14 @@ $(document).ready(function() {
     evaluateAnswer: $('#evaluate'),
     questionNoHeading: $('#questionNumber'),
     scoreBoard: $('#score'),
-    solutionsHeading: $('#solutions')
+    solutionsHeading: $('#solutions'),
+    questionDelayValue: 7000,
+    numberOfQuestions: 4,
+    timerDelayValue: 1000,
+    timerCountValue: 5,
+    opertorArray: ['+', '-', '*', '/'],
+    operandUpperLimit: 20,
+    operandLowerLimit: 0
   },
   quizObject = new Quiz(data);
   quizObject.init();

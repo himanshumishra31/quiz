@@ -16,7 +16,9 @@ function Quiz(data) {
   this.operators = data.opertorArray;
   this.operandUpperLimit = data.operandUpperLimit;
   this.operandLowerLimit = data.operandLowerLimit;
-
+  this.inputElement = data.inputElement;
+  this.submitElement = data.submitElement;
+  this.questionDisplay = data.questionDisplay;
 }
 
 Quiz.prototype.timer = function() {
@@ -24,12 +26,14 @@ Quiz.prototype.timer = function() {
   var _this = this;
   this.delay = this.timerDelayValue;
   this.timecount = this.timerCountValue;
+  this.inputElement.prop("disabled", false);
+  this.inputElement.val('');
   this.thirdInterval = setInterval(function() {
     _this.timerpara.text('00:0' + _this.timecount--);
     if(_this.timecount < 0) {
       _this.evaluateAnswer.text('time up');
       _this.timerpara.text('NextQuestion');
-      if(!_this.click) {
+      if(!_this.isClicked) {
         _this.submitElement.trigger('click');
       } else if(!_this.inputElement.val()) {
         _this.savequestion();
@@ -52,15 +56,15 @@ Quiz.prototype.savequestion = function() {
 Quiz.prototype.checkanswer = function() {
   var _this = this;
   return function() {
-    _this.click = true;
+    _this.isClicked = true;
     _this.inputElement.prop("disabled", true);
     if(_this.inputElement.val() == _this.answer) {
       _this.evaluateAnswer.text('correct answer');
       _this.score++;
       _this.isCorrect = true;
     } else {
-      _this.evaluateAnswer.text('incorrect answer');
       _this.isCorrect = false;
+      _this.evaluateAnswer.text('incorrect answer');
       _this.savequestion();
     }
   };
@@ -71,16 +75,14 @@ Quiz.prototype.createQuestion = function() {
   this.number2 = Math.ceil(Math.random() * this.operandUpperLimit) + this.operandLowerLimit;
   this.randomOperatorIndex = Math.floor(Math.random() * this.operators.length);
   this.answer = Math.round(eval(this.number1 + this.operators[this.randomOperatorIndex] + this.number2) * 100) / 100;
-  this.inputElement = $('<input>', { type: "text" });
-  this.submitElement = $('<input>', { type: "submit", value: "submit" });
   this.questionNoHeading.text("Question Number: " + ++this.questionNumber);
-  this.question = this.number1 + ' ' + this.operators[this.randomOperatorIndex] + ' ' + this.number2 + ' = ';
-  this.questionDiv.text(this.question);
-  this.questionDiv.append(this.inputElement, '<br>', this.submitElement);
+  this.question = this.number1 + ' ' + this.operators[this.randomOperatorIndex] + ' ' + this.number2 ;
+  this.questionDisplay.text(this.question);
   this.evaluateAnswer.text('');
   this.scoreBoard.text('Score: ' + this.score);
-  this.submitElement.click(this.checkanswer());
-  this.click = false;
+  this.submitElement.show();
+  this.inputElement.show();
+  this.isClicked = false;
 };
 
 Quiz.prototype.showScore = function() {
@@ -122,11 +124,12 @@ Quiz.prototype.startQuiz = function() {
   var _this = this;
   this.questionDelay = this.questionDelayValue;
   this.secondInterval = setInterval(function() {
-    _this.timer();
-    if(_this.questionNumber > _this.numberOfQuestions) {
+    if(_this.questionNumber > _this.numberOfQuestions - 1) {
       clearInterval(_this.secondInterval);
       clearInterval(_this.thirdInterval);
       _this.showScore();
+    } else {
+      _this.timer();
     }
   }, _this.questionDelay);
 };
@@ -135,7 +138,7 @@ Quiz.prototype.startQuizInterval = function() {
   var startTime = 5,
       _this = this;
   this.firstInterval = setInterval(function() {
-    _this.questionDiv.text('Quiz about to start in ' + startTime-- + ' seconds');
+    _this.questionDisplay.text('Quiz about to start in ' + startTime-- + ' seconds');
     _this.timerpara.text('get ready');
     if (startTime < 0) {
       clearInterval(_this.firstInterval);
@@ -145,6 +148,7 @@ Quiz.prototype.startQuizInterval = function() {
 
 Quiz.prototype.init = function() {
   this.startQuizInterval();
+  this.submitElement.click(this.checkanswer());
   this.startQuiz();
 };
 
@@ -157,12 +161,15 @@ $(document).ready(function() {
     scoreBoard: $('#score'),
     solutionsHeading: $('#solutions'),
     questionDelayValue: 7000,
-    numberOfQuestions: 4,
+    numberOfQuestions: 2,
     timerDelayValue: 1000,
     timerCountValue: 5,
     opertorArray: ['+', '-', '*', '/'],
     operandUpperLimit: 20,
-    operandLowerLimit: 0
+    operandLowerLimit: 0,
+    inputElement: $('input[data-input="answer"]'),
+    submitElement: $('input[data-input="submitBtn"]'),
+    questionDisplay: $('h4[data-question="display"]')
   },
   quizObject = new Quiz(data);
   quizObject.init();

@@ -1,15 +1,15 @@
 function Quiz(data) {
   this.quizContainer = data.quizContainer;
   this.questionNumber = 0;
-  this.questionDiv = data.questionDiv;
-  this.timerpara = data.timerpara;
+  this.questionDiv = this.quizContainer.find(data.questionDiv);
+  this.timerpara = this.quizContainer.find(data.timerpara);
   this.score = 0;
-  this.evaluateAnswer = data.evaluateAnswer;
-  this.questionNoHeading = data.questionNoHeading;
+  this.evaluateAnswer = this.quizContainer.find(data.evaluateAnswer);
+  this.questionNoHeading = this.quizContainer.find(data.questionNoHeading);
   this.isCorrect = false;
   this.storeQuestion = {};
-  this.scoreBoard = data.scoreBoard;
-  this.solutionsHeading = data.solutionsHeading;
+  this.scoreBoard = this.quizContainer.find(data.scoreBoard);
+  this.solutionsHeading = this.quizContainer.find(data.solutionsHeading);
   this.questionDelayValue = data.questionDelayValue;
   this.numberOfQuestions = data.numberOfQuestions;
   this.timerDelayValue = data.timerDelayValue;
@@ -17,9 +17,9 @@ function Quiz(data) {
   this.operators = data.opertorArray;
   this.operandUpperLimit = data.operandUpperLimit;
   this.operandLowerLimit = data.operandLowerLimit;
-  this.inputElement = data.inputElement;
-  this.submitElement = data.submitElement;
-  this.questionDisplay = data.questionDisplay;
+  this.inputElement = this.quizContainer.find(data.inputElement);
+  this.submitElement = this.quizContainer.find(data.submitElement);
+  this.questionDisplay = this.quizContainer.find(data.questionDisplay);
   this.quizStartTime = data.quizStartTime;
 }
 
@@ -157,6 +157,29 @@ Quiz.prototype.init = function() {
 $(document).ready(function() {
   var data = {
     quizContainer: $('div[data-quiz="container"]'),
+    questionDiv: 'div[data-div="question"]',
+    timerpara: 'div[data-timer="questionTimer"] p',
+    evaluateAnswer: 'div[data-evaluate="evaluateAnswer"]',
+    questionNoHeading: 'h3[data-questionDetails="questionNumber"]',
+    scoreBoard: 'h4[data-score="scoreBoard"]',
+    solutionsHeading: 'h4[data-heading="solutions"]',
+    questionDelayValue: 10000,
+    quizStartTime: 8,
+    numberOfQuestions: 5,
+    timerDelayValue: 1000,
+    timerCountValue: 8,
+    opertorArray: ['+', '-', '*', '/'],
+    operandUpperLimit: 20,
+    operandLowerLimit: 0,
+    inputElement: 'input[data-input="answer"]',
+    submitElement: 'input[data-input="submitBtn"]',
+    questionDisplay: 'h4[data-question="display"]'
+  },
+  quizObject = new Quiz(data);
+  quizObject.init();
+
+  var data2 = {
+    quizContainer: $('div[data-quiz="container2"]'),
     questionDiv: $('div[data-div="question"]'),
     timerpara: $('div[data-timer="questionTimer"] p'),
     evaluateAnswer: $('div[data-evaluate="evaluateAnswer"]'),
@@ -175,28 +198,6 @@ $(document).ready(function() {
     submitElement: $('input[data-input="submitBtn"]'),
     questionDisplay: $('h4[data-question="display"]')
   },
-  quizObject = new Quiz(data);
-  quizObject.init();
-
-  // var data2 = {
-  //   quizContainer: $('div[data-quiz="container2"]'),
-  //   questionDiv: $('div[data-div="question"]'),
-  //   timerpara: $('div[data-timer="questionTimer"] p'),
-  //   evaluateAnswer: $('div[data-evaluate="evaluateAnswer"]'),
-  //   questionNoHeading: $('h3[data-questionDetails="questionNumber"]'),
-  //   scoreBoard: $('h4[data-score="scoreBoard"]'),
-  //   solutionsHeading: $('h4[data-heading="solutions"]'),
-  //   questionDelayValue: 10000,
-  //   numberOfQuestions: 5,
-  //   timerDelayValue: 1000,
-  //   timerCountValue: 8,
-  //   opertorArray: ['+', '-', '*', '/'],
-  //   operandUpperLimit: 20,
-  //   operandLowerLimit: 0,
-  //   inputElement: $('input[data-input="answer"]'),
-  //   submitElement: $('input[data-input="submitBtn"]'),
-  //   questionDisplay: $('h4[data-question="display"]')
-  // },
-  // quizObject2 = new Quiz(data2);
-  // quizObject2.init();
+  quizObject2 = new Quiz(data2);
+  quizObject2.init();
 });

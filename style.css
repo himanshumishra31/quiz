@@ -13,11 +13,13 @@ h3 {
 
 #timer {
   float: right;
+  position: fixed;
 
 }
 
 #timer p {
   font-size :150%;
+  padding-left: 230px;
 }
 #question {
   clear: right;
@@ -26,6 +28,10 @@ h3 {
 
 #question h4 {
   padding-left: 200px;
+}
+
+#score {
+  padding-left: 230px;
 }
 
 #question input {
@@ -41,7 +47,7 @@ h3 {
 #solutionTable {
   border :2px black solid;
   text-align: center;
-  margin:auto;
+  margin-bottom:150px;
   width: 100%;
 }
 

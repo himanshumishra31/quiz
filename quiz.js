@@ -6,44 +6,38 @@ function Quiz(data) {
   this.score = 0;
   this.evaluateAnswer = this.quizContainer.find(data.evaluateAnswer);
   this.questionNoHeading = this.quizContainer.find(data.questionNoHeading);
-  this.isCorrect = false;
   this.storeQuestion = {};
   this.scoreBoard = this.quizContainer.find(data.scoreBoard);
   this.solutionsHeading = this.quizContainer.find(data.solutionsHeading);
   this.questionDelayValue = data.questionDelayValue;
   this.numberOfQuestions = data.numberOfQuestions;
-  this.timerDelayValue = data.timerDelayValue;
-  this.timerCountValue = data.timerCountValue;
   this.operators = data.opertorArray;
   this.operandUpperLimit = data.operandUpperLimit;
   this.operandLowerLimit = data.operandLowerLimit;
   this.inputElement = this.quizContainer.find(data.inputElement);
   this.submitElement = this.quizContainer.find(data.submitElement);
   this.questionDisplay = this.quizContainer.find(data.questionDisplay);
-  this.quizStartTime = data.quizStartTime;
 }
 
-Quiz.prototype.timer = function() {
-  this.createQuestion();
+Quiz.prototype.startQuiz = function() {
   var _this = this;
-  this.delay = this.timerDelayValue;
-  this.timecount = this.timerCountValue;
-  this.inputElement.prop("disabled", false);
-  this.inputElement.val('');
-  this.thirdInterval = setInterval(function() {
-    _this.timerpara.text('00:0' + _this.timecount--);
-    if(_this.timecount < 0) {
-      _this.evaluateAnswer.text('time up');
-      _this.timerpara.text('NextQuestion');
-      if(!_this.isClicked) {
-        _this.submitElement.trigger('click');
-      } else if(!_this.inputElement.val()) {
+  this.timer = this.questionDelayValue;
+  this.timerInterval = setInterval(function() {
+    if(_this.questionNumber < _this.numberOfQuestions) {
+      if(_this.timer <= 0) {
         _this.savequestion();
+        _this.createQuestion();
+        _this.timer = _this.questionDelayValue;
+      } else {
+        _this.timerpara.text('00:0' + _this.timer--);
       }
-      clearInterval(_this.thirdInterval);
+    } else {
+      _this.showScore();
     }
-  },this.delay);
+  },1000);
+  this.createQuestion();
 };
+
 
 Quiz.prototype.savequestion = function() {
   this.storeQuestion[this.questionNumber] = {
@@ -58,7 +52,6 @@ Quiz.prototype.savequestion = function() {
 Quiz.prototype.checkanswer = function() {
   var _this = this;
   return function() {
-    _this.isClicked = true;
     _this.inputElement.prop("disabled", true);
     if(_this.inputElement.val() == _this.answer) {
       _this.evaluateAnswer.text('correct answer');
@@ -69,6 +62,8 @@ Quiz.prototype.checkanswer = function() {
       _this.evaluateAnswer.text('incorrect answer');
       _this.savequestion();
     }
+    _this.timer = 0;
+    _this.startQuiz();
   };
 };
 
@@ -84,10 +79,12 @@ Quiz.prototype.createQuestion = function() {
   this.scoreBoard.text('Score: ' + this.score);
   this.submitElement.show();
   this.inputElement.show();
-  this.isClicked = false;
+  this.inputElement.prop("disabled", false);
+  this.inputElement.val('');
 };
 
 Quiz.prototype.showScore = function() {
+  console.log(this.storeQuestion);
   this.questionNoHeading.text('Your Score is : ' + this.score);
   this.timerpara.text('');
   this.evaluateAnswer.text('');
@@ -107,45 +104,21 @@ Quiz.prototype.showScore = function() {
     tableRow.appendTo(table);
     tableRow.append(questionColumnHeading, number1ColumnHeading, operatorColumnHeading, number2ColumnHeading, givenAnswerHeading, correctAnswerHeading);
     for(var key in this.storeQuestion) {
-      var questionDataRow = $('<tr>'),
-          questionNo = $('<td>').text(key);
-      questionDataRow.appendTo(table);
-      questionNo.appendTo(questionDataRow);
-      for(var key2 in this.storeQuestion[key]) {
-        var questionData = $('<td>').text(this.storeQuestion[key][key2]);
-        questionData.appendTo(questionDataRow);
+      if(this.storeQuestion[key]['answerGiven'] != this.storeQuestion[key]['correctAnswer']) {
+        var questionDataRow = $('<tr>'),
+            questionNo = $('<td>').text(key);
+        questionDataRow.appendTo(table);
+        questionNo.appendTo(questionDataRow);
+        for(var key2 in this.storeQuestion[key]) {
+          var questionData = $('<td>').text(this.storeQuestion[key][key2]);
+          questionData.appendTo(questionDataRow);
+        }
       }
     }
     table.appendTo(this.evaluateAnswer);
   } else {
     this.solutionsHeading.text('Great. You answered all questions correctly');
   }
-};
-
-Quiz.prototype.startQuiz = function() {
-  var _this = this;
-  this.questionDelay = this.questionDelayValue;
-  this.secondInterval = setInterval(function() {
-    if(_this.questionNumber > _this.numberOfQuestions - 1) {
-      clearInterval(_this.secondInterval);
-      clearInterval(_this.thirdInterval);
-      _this.showScore();
-    } else {
-      _this.timer();
-    }
-  }, _this.questionDelay);
-};
-
-Quiz.prototype.startQuizInterval = function() {
-  var startTime = this.quizStartTime,
-      _this = this;
-  this.firstInterval = setInterval(function() {
-    _this.questionDisplay.text('Quiz about to start in ' + startTime-- + ' seconds');
-    _this.timerpara.text('get ready');
-    if (startTime < 0) {
-      clearInterval(_this.firstInterval);
-    }
-  }, this.timerDelayValue);
 };
 
 Quiz.prototype.enterSubmit = function() {
@@ -158,7 +131,6 @@ Quiz.prototype.enterSubmit = function() {
 };
 
 Quiz.prototype.init = function() {
-  this.startQuizInterval();
   this.submitElement.click(this.checkanswer());
   this.enterSubmit();
   this.startQuiz();
@@ -173,12 +145,9 @@ $(document).ready(function() {
     questionNoHeading: 'h3[data-questionDetails="questionNumber"]',
     scoreBoard: 'h4[data-score="scoreBoard"]',
     solutionsHeading: 'h4[data-heading="solutions"]',
-    questionDelayValue: 10000,
-    quizStartTime: 8,
-    numberOfQuestions: 5,
-    timerDelayValue: 1000,
-    timerCountValue: 8,
-    opertorArray: ['+', '-', '*', '/'],
+    questionDelayValue: 9,
+    numberOfQuestions: 3,
+    opertorArray: ['+'],
     operandUpperLimit: 20,
     operandLowerLimit: 0,
     inputElement: 'input[data-input="answer"]',
@@ -188,26 +157,23 @@ $(document).ready(function() {
   quizObject = new Quiz(data);
   quizObject.init();
 
-  // var data2 = {
-  //   quizContainer: $('div[data-quiz="container2"]'),
-  //   questionDiv: $('div[data-div="question"]'),
-  //   timerpara: $('div[data-timer="questionTimer"] p'),
-  //   evaluateAnswer: $('div[data-evaluate="evaluateAnswer"]'),
-  //   questionNoHeading: $('h3[data-questionDetails="questionNumber"]'),
-  //   scoreBoard: $('h4[data-score="scoreBoard"]'),
-  //   solutionsHeading: $('h4[data-heading="solutions"]'),
-  //   questionDelayValue: 10000,
-  //   quizStartTime: 8,
-  //   numberOfQuestions: 5,
-  //   timerDelayValue: 1000,
-  //   timerCountValue: 8,
-  //   opertorArray: ['+', '-', '*', '/'],
-  //   operandUpperLimit: 20,
-  //   operandLowerLimit: 0,
-  //   inputElement: $('input[data-input="answer"]'),
-  //   submitElement: $('input[data-input="submitBtn"]'),
-  //   questionDisplay: $('h4[data-question="display"]')
-  // },
-  // quizObject2 = new Quiz(data2);
-  // quizObject2.init();
+  var data2 = {
+    quizContainer: $('div[data-quiz="container2"]'),
+    questionDiv: 'div[data-div="question"]',
+    timerpara: 'div[data-timer="questionTimer"] p',
+    evaluateAnswer: 'div[data-evaluate="evaluateAnswer"]',
+    questionNoHeading: 'h3[data-questionDetails="questionNumber"]',
+    scoreBoard: 'h4[data-score="scoreBoard"]',
+    solutionsHeading: 'h4[data-heading="solutions"]',
+    questionDelayValue: 9,
+    numberOfQuestions: 3,
+    opertorArray: ['-'],
+    operandUpperLimit: 20,
+    operandLowerLimit: 0,
+    inputElement: 'input[data-input="answer"]',
+    submitElement: 'input[data-input="submitBtn"]',
+    questionDisplay: 'h4[data-question="display"]'
+  },
+  quizObject2 = new Quiz(data2);
+  quizObject2.init();
 });

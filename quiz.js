@@ -1,4 +1,5 @@
 function Quiz(data) {
+  this.quizContainer = data.quizContainer;
   this.questionNumber = 0;
   this.questionDiv = data.questionDiv;
   this.timerpara = data.timerpara;
@@ -51,7 +52,7 @@ Quiz.prototype.savequestion = function() {
     answerGiven: this.inputElement.val(),
     correctAnswer: this.answer
   };
-}
+};
 
 Quiz.prototype.checkanswer = function() {
   var _this = this;
@@ -102,7 +103,6 @@ Quiz.prototype.showScore = function() {
         number2ColumnHeading = $('<th>').text('Second Number'),
         givenAnswerHeading = $('<th>').text('Given Answer'),
         correctAnswerHeading = $('<th>').text('Correct Answer');
-    table.appendTo(this.evaluateAnswer);
     tableRow.appendTo(table);
     tableRow.append(questionColumnHeading, number1ColumnHeading, operatorColumnHeading, number2ColumnHeading, givenAnswerHeading, correctAnswerHeading);
     for(var key in this.storeQuestion) {
@@ -115,6 +115,7 @@ Quiz.prototype.showScore = function() {
         questionData.appendTo(questionDataRow);
       }
     }
+    table.appendTo(this.evaluateAnswer);
   } else {
     this.solutionsHeading.text('Great. You answered all questions correctly');
   }
@@ -154,12 +155,13 @@ Quiz.prototype.init = function() {
 
 $(document).ready(function() {
   var data = {
-    questionDiv: $('#question'),
-    timerpara: $('#timer p'),
-    evaluateAnswer: $('#evaluate'),
-    questionNoHeading: $('#questionNumber'),
-    scoreBoard: $('#score'),
-    solutionsHeading: $('#solutions'),
+    quizContainer: $('div[data-quiz="container"]'),
+    questionDiv: $('div[data-div="question"]'),
+    timerpara: $('div[data-timer="questionTimer"] p'),
+    evaluateAnswer: $('div[data-evaluate="evaluateAnswer"]'),
+    questionNoHeading: $('h3[data-questionDetails="questionNumber"]'),
+    scoreBoard: $('h4[data-score="scoreBoard"]'),
+    solutionsHeading: $('h4[data-heading="solutions"]'),
     questionDelayValue: 7000,
     numberOfQuestions: 2,
     timerDelayValue: 1000,

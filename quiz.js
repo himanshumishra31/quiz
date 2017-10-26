@@ -20,6 +20,7 @@ function Quiz(data) {
   this.inputElement = data.inputElement;
   this.submitElement = data.submitElement;
   this.questionDisplay = data.questionDisplay;
+  this.quizStartTime = data.quizStartTime;
 }
 
 Quiz.prototype.timer = function() {
@@ -136,7 +137,7 @@ Quiz.prototype.startQuiz = function() {
 };
 
 Quiz.prototype.startQuizInterval = function() {
-  var startTime = 5,
+  var startTime = this.quizStartTime,
       _this = this;
   this.firstInterval = setInterval(function() {
     _this.questionDisplay.text('Quiz about to start in ' + startTime-- + ' seconds');
@@ -162,10 +163,11 @@ $(document).ready(function() {
     questionNoHeading: $('h3[data-questionDetails="questionNumber"]'),
     scoreBoard: $('h4[data-score="scoreBoard"]'),
     solutionsHeading: $('h4[data-heading="solutions"]'),
-    questionDelayValue: 7000,
-    numberOfQuestions: 2,
+    questionDelayValue: 10000,
+    quizStartTime: 8,
+    numberOfQuestions: 5,
     timerDelayValue: 1000,
-    timerCountValue: 5,
+    timerCountValue: 8,
     opertorArray: ['+', '-', '*', '/'],
     operandUpperLimit: 20,
     operandLowerLimit: 0,
@@ -175,4 +177,26 @@ $(document).ready(function() {
   },
   quizObject = new Quiz(data);
   quizObject.init();
+
+  // var data2 = {
+  //   quizContainer: $('div[data-quiz="container2"]'),
+  //   questionDiv: $('div[data-div="question"]'),
+  //   timerpara: $('div[data-timer="questionTimer"] p'),
+  //   evaluateAnswer: $('div[data-evaluate="evaluateAnswer"]'),
+  //   questionNoHeading: $('h3[data-questionDetails="questionNumber"]'),
+  //   scoreBoard: $('h4[data-score="scoreBoard"]'),
+  //   solutionsHeading: $('h4[data-heading="solutions"]'),
+  //   questionDelayValue: 10000,
+  //   numberOfQuestions: 5,
+  //   timerDelayValue: 1000,
+  //   timerCountValue: 8,
+  //   opertorArray: ['+', '-', '*', '/'],
+  //   operandUpperLimit: 20,
+  //   operandLowerLimit: 0,
+  //   inputElement: $('input[data-input="answer"]'),
+  //   submitElement: $('input[data-input="submitBtn"]'),
+  //   questionDisplay: $('h4[data-question="display"]')
+  // },
+  // quizObject2 = new Quiz(data2);
+  // quizObject2.init();
 });

@@ -148,9 +148,19 @@ Quiz.prototype.startQuizInterval = function() {
   }, this.timerDelayValue);
 };
 
+Quiz.prototype.enterSubmit = function() {
+  var _this = this;
+  this.inputElement.keyup(function(event) {
+    if(event.keyCode == 13) {
+      _this.submitElement.trigger('click');
+    }
+  });
+};
+
 Quiz.prototype.init = function() {
   this.startQuizInterval();
   this.submitElement.click(this.checkanswer());
+  this.enterSubmit();
   this.startQuiz();
 };
 
@@ -178,26 +188,26 @@ $(document).ready(function() {
   quizObject = new Quiz(data);
   quizObject.init();
 
-  var data2 = {
-    quizContainer: $('div[data-quiz="container2"]'),
-    questionDiv: $('div[data-div="question"]'),
-    timerpara: $('div[data-timer="questionTimer"] p'),
-    evaluateAnswer: $('div[data-evaluate="evaluateAnswer"]'),
-    questionNoHeading: $('h3[data-questionDetails="questionNumber"]'),
-    scoreBoard: $('h4[data-score="scoreBoard"]'),
-    solutionsHeading: $('h4[data-heading="solutions"]'),
-    questionDelayValue: 10000,
-    quizStartTime: 8,
-    numberOfQuestions: 5,
-    timerDelayValue: 1000,
-    timerCountValue: 8,
-    opertorArray: ['+', '-', '*', '/'],
-    operandUpperLimit: 20,
-    operandLowerLimit: 0,
-    inputElement: $('input[data-input="answer"]'),
-    submitElement: $('input[data-input="submitBtn"]'),
-    questionDisplay: $('h4[data-question="display"]')
-  },
-  quizObject2 = new Quiz(data2);
-  quizObject2.init();
+  // var data2 = {
+  //   quizContainer: $('div[data-quiz="container2"]'),
+  //   questionDiv: $('div[data-div="question"]'),
+  //   timerpara: $('div[data-timer="questionTimer"] p'),
+  //   evaluateAnswer: $('div[data-evaluate="evaluateAnswer"]'),
+  //   questionNoHeading: $('h3[data-questionDetails="questionNumber"]'),
+  //   scoreBoard: $('h4[data-score="scoreBoard"]'),
+  //   solutionsHeading: $('h4[data-heading="solutions"]'),
+  //   questionDelayValue: 10000,
+  //   quizStartTime: 8,
+  //   numberOfQuestions: 5,
+  //   timerDelayValue: 1000,
+  //   timerCountValue: 8,
+  //   opertorArray: ['+', '-', '*', '/'],
+  //   operandUpperLimit: 20,
+  //   operandLowerLimit: 0,
+  //   inputElement: $('input[data-input="answer"]'),
+  //   submitElement: $('input[data-input="submitBtn"]'),
+  //   questionDisplay: $('h4[data-question="display"]')
+  // },
+  // quizObject2 = new Quiz(data2);
+  // quizObject2.init();
 });
